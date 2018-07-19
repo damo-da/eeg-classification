@@ -5,41 +5,31 @@ from scipy import signal
 from functools import lru_cache
 
 
-def calculate_cheby2_params(using_MA=True, data_type='EEG'):
-    if using_MA:
-        Wp = (0.0400, 0.3500)
-        Ws = (0.0100, 0.3800)
-        Rp = 3
-        Rs = 30
-    else:
-        Wp = (0.0950, 0.1450)
-        Ws = (0.0650, 0.1750)
-        Rp = 3
-        Rs = 30
+@lru_cache(maxsize=None)
+def calculate_cheby2_params(Wp, Ws, Rp, Rs, passband, stopband, fps):
 
     ord, Wn = signal.cheb2ord(Wp, Ws, Rp, Rs)
     b, a = signal.cheby2(ord, Rs, Wn, btype='bandpass')
-    return b, a
-
-
-@lru_cache(maxsize=None)
-def get_filter_params(fps, using_ma):
-
-    pass_band = (4, 35) if using_ma else (8, 30)
-    stop_band = (0, 40)
-
-    b, a = calculate_cheby2_params(using_MA=using_ma)
 
     iir_params = mne.filter.construct_iir_filter({
-            'a': a,
             'b': b,
-            'output': 'ba'}, pass_band, stop_band, fps, btype='bandpass')
-    # iir_params = mne.filter.create_filter(raw._data, sfreq=200, l_freq=4, method='iir', h_freq=35,
-    # iir_params=iir_params)
-    return pass_band, {'method':'iir', 'iir_params':iir_params}
+            'a': a,
+            'output': 'ba'}, passband, stopband, fps, btype='bandpass')
+    return passband, {'method':'iir', 'iir_params':iir_params}
 
 
-def extract_epochs(full_data, subject, duration=20, start=0.0, fps=200, using_ma=True):
+def get_filter_params(config):
+    fc = config['filter']['ma'] if config['is_ma'] else config['filter']['mi']
+
+    passband = fc['passband']
+    stopband = fc['stopband']
+    Wp, Ws, Rp, Rs = fc['Wp'], fc['Ws'], fc['Rp'], fc['Rs']
+    fps = config['fps']
+
+    return calculate_cheby2_params(Wp, Ws, Rp, Rs, passband, stopband, fps)
+
+
+def extract_epochs(full_data, subject, config, duration=20, start=0.0, fps=200, using_ma=True):
     """Extract epochs from full subjects data.
 
     :param epoch_length: in seconds.
@@ -92,7 +82,7 @@ def extract_epochs(full_data, subject, duration=20, start=0.0, fps=200, using_ma
 
     this_sub_data.set_eeg_reference('average')
 
-    filter_params, filter_dict = get_filter_params(fps, using_ma)
+    filter_params, filter_dict = get_filter_params(config)
     this_sub_data.filter(*filter_params, **filter_dict)
 
 

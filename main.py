@@ -1,17 +1,18 @@
-from moabb1.datasets import Shin2017B
+from moabb1.datasets import Shin2017B, Shin2017A
 from utils import extract_epochs, classify
 import logging
 from matplotlib import pyplot as plt
 import numpy as np
+from config import CONFIG
 
 mne_logger = logging.getLogger('mne')
 mne_logger.setLevel(logging.ERROR)
 
 
 def main():
-    subjects = range(1, 11)
+    subjects = CONFIG['subjects']
 
-    dataset = Shin2017B()
+    dataset = Shin2017B() if CONFIG['is_ma'] else Shin2017A()
 
     all_scores = []
 
@@ -21,12 +22,11 @@ def main():
 
         scores = []
 
-        windows = range(0, 5)
-        windows = range(-5, 20)
+        windows = CONFIG['windows']
         for window_start in windows:
             print('start at ', window_start, end=', ')
-            data = extract_epochs(this_subject_data, subject, start=window_start, duration=3.0)
-            score = classify(data)
+            data = extract_epochs(this_subject_data, subject, config=CONFIG, start=window_start, duration=CONFIG['epoch_duration'])
+            score = classify(data, config=CONFIG['classification'])
             scores.append(score)
             print(score)
         all_scores.append(scores)
@@ -34,7 +34,6 @@ def main():
         plt.plot(scores, color='gray')
 
     scores = np.array(all_scores)
-    print(scores, scores.shape)
     scores = np.average(scores, axis=0)
     print(scores, scores.shape)
     plt.plot(scores, linewidth=2)

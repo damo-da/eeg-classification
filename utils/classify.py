@@ -4,9 +4,11 @@ from mne.decoding import CSP
 import numpy as np
 
 
-def classify(epochs, n_splits=10, test_size=0.2):
-    classifier = linear_model.LogisticRegression()
-    csp = CSP(norm_trace=False)
+def classify(epochs, config):
+    n_splits = config['n_splits']
+    test_size = config['test_size']
+    classifier = config['classifier']
+    csp = CSP(norm_trace=config['csp_norm_trace'])
 
     labels = epochs.events[:, -1]
 
