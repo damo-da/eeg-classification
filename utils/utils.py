@@ -39,54 +39,61 @@ def get_filter_params(fps, using_ma):
     return pass_band, {'method':'iir', 'iir_params':iir_params}
 
 
-def extract_epochs(full_data, subjects, epoch_length=20, fps=200, using_ma=True):
+def extract_epochs(full_data, subject, duration=20, start=0.0, fps=200, using_ma=True):
     """Extract epochs from full subjects data.
 
     :param epoch_length: in seconds.
     """
 
     all_data = {}
-    duration = int(epoch_length * fps)
-    for subject in subjects:
-        info = None
-        this_sub_data = {'items': []}
-        inst_data = np.zeros((60, 33, duration))
-        inst_events = np.zeros((60, 3), dtype=np.int)
+    duration_of_frames = int(duration * fps)
+    start_at_frame = int(start * fps)
+
+    info = None
+    this_sub_data = {'items': []}
+    inst_data = np.zeros((60, 33, duration_of_frames))
+    inst_events = np.zeros((60, 3), dtype=np.int)
 
 
-        session_ctr = 0
-        time_sum = 0
-        for session_id, session_data in full_data[subject].items():
-            raw = session_data['run_0']
+    session_ctr = 0
+    time_sum = 0
 
-            filter_params, filter_dict = get_filter_params(fps, using_ma)
-            raw.filter(*filter_params, **filter_dict)
+    for session_id, session_data in full_data.items():
+        raw = session_data['run_0']
 
-            info = raw.info
 
-            times = raw._data[-1]
-            cs = np.where(times > 0)[0]
+        info = raw.info
 
-            for i, x in enumerate(cs):
-                y = int(times[x])
-                begin_at = x
-                end_at = begin_at + duration
-                trial = raw._data[:, begin_at:end_at]
+        times = raw._data[-1]
+        cs = np.where(times > 0)[0]
 
-                inst_index = session_ctr * 20 + i
+        for i, x in enumerate(cs):
+            y = int(times[x])
+            begin_at = x + start_at_frame
+            end_at = begin_at + duration_of_frames
+            trial = raw._data[:, begin_at:end_at]
 
-                inst_data[inst_index] = trial
-                inst_events[inst_index] = [time_sum + begin_at, 0, y]
+            inst_index = session_ctr * 20 + i
 
-                this_sub_data['items'].append({
-                    'y': y,
-                    'x': trial,
-                    'begin_at': begin_at
-                })
-            session_ctr += 1
-            time_sum += raw._data.shape[1]
+            inst_data[inst_index] = trial
+            inst_events[inst_index] = [time_sum + begin_at, 0, y]
 
-        this_sub_data = EpochsArray(inst_data, info, events=inst_events, baseline=(None, None))
-        all_data[subject] = this_sub_data
+            this_sub_data['items'].append({
+                'y': y,
+                'x': trial,
+                'begin_at': begin_at
+            })
+        session_ctr += 1
+        time_sum += raw._data.shape[1]
 
-    return all_data
+    this_sub_data = EpochsArray(inst_data, info, events=inst_events, baseline=(None, None))
+    this_sub_data.pick_types(eeg=True)
+
+
+    this_sub_data.set_eeg_reference('average')
+
+    filter_params, filter_dict = get_filter_params(fps, using_ma)
+    this_sub_data.filter(*filter_params, **filter_dict)
+
+
+    return this_sub_data
