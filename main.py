@@ -25,7 +25,7 @@ def main():
         windows = CONFIG['windows']
         for window_start in windows:
             print('start at ', window_start, end=', ')
-            data = extract_epochs(this_subject_data, subject, config=CONFIG, start=window_start, duration=CONFIG['epoch_duration'])
+            data = extract_epochs(this_subject_data, subject, config=CONFIG, start=window_start)
             score = classify(data, config=CONFIG['classification'])
             scores.append(score)
             print(score)
