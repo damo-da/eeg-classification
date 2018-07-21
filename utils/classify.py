@@ -12,7 +12,7 @@ def classify(epochs, config):
 
     labels = epochs.events[:, -1]
 
-    cv = ShuffleSplit(n_splits=n_splits, test_size=test_size, random_state=config['random_state'])
+    cv = ShuffleSplit(n_splits=n_splits, test_size=test_size)
     scores = []
     epochs_data = epochs.get_data()
 

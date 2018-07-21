@@ -1,4 +1,6 @@
 from sklearn.svm import SVC
+import random
+import numpy as np
 
 CONFIG = {
     'is_ma': True,
@@ -9,7 +11,7 @@ CONFIG = {
     'subjects': range(1, 5),
 
     # 'windows': range(-5, 20),
-    'windows': range(-2, 7),
+    'windows': range(-4, 6),
     'epoch_duration': 3.0,
 
     'filter': {
@@ -35,4 +37,7 @@ CONFIG = {
     }
 }
 
-CONFIG['classification']['classifier'] = SVC(kernel='linear', random_state=CONFIG['random_state'])
+random.seed(CONFIG['random_state'])
+np.random.seed(CONFIG['random_state'])
+
+CONFIG['classification']['classifier'] = SVC(kernel='linear')

@@ -1,6 +1,5 @@
 import logging
 import config
-import random
 
 from tasks import by_window\
 
@@ -9,8 +8,9 @@ mne_logger.setLevel(logging.ERROR)
 
 
 def main():
-    random.seed(config.CONFIG['random_state'])
-    by_window(config.CONFIG)
+    # by_window(config.CONFIG)
+
+    cross_validate_wp_ws_rp_rs(config.CONFIG)
 
 
 if __name__ == '__main__':
