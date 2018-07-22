@@ -1,35 +1,7 @@
 import numpy as np
 from mne import EpochsArray
-import mne
-from scipy import signal
-from functools import lru_cache
 from itertools import starmap
-
-
-@lru_cache(maxsize=None)
-def calculate_cheby2_params(Wp, Ws, Rp, Rs, fps):
-    _ord, Wn = signal.cheb2ord(Wp, Ws, Rp, Rs)
-    b, a = signal.cheby2(_ord, Rs, Wn, btype='bandpass')
-
-    nyquist_f = fps/2.
-
-    passband = (Wp[0] * nyquist_f, Wp[1]*nyquist_f)
-    stopband = (Ws[0] * nyquist_f, Ws[1]*nyquist_f)
-
-    iir_params = mne.filter.construct_iir_filter({
-        'b': b,
-        'a': a,
-        'output': 'ba'}, passband, stopband, fps, btype='bandpass')
-    return passband, {'method': 'iir', 'iir_params': iir_params}
-
-
-def get_filter_params(config):
-    fc = config['filter']['ma'] if config['is_ma'] else config['filter']['mi']
-
-    Wp, Ws, Rp, Rs = fc['Wp'], fc['Ws'], fc['Rp'], fc['Rs']
-    fps = config['fps']
-
-    return calculate_cheby2_params(Wp, Ws, Rp, Rs, fps)
+from .filter_utils import get_filter_params
 
 
 def session_mapper(session_data, start_offset, duration):
@@ -64,7 +36,7 @@ def extract_epochs(full_data, config, start=0.0):
     duration_of_frames = int(config['epoch_duration'] * fps)
     start_at_frame = int(start * fps)
 
-    assert(len(list(list(full_data.values())[0].keys())) == 1)
+    assert (len(list(list(full_data.values())[0].keys())) == 1)
 
     info = list(full_data.values())[0]['run_0'].info.copy()
 
@@ -77,12 +49,11 @@ def extract_epochs(full_data, config, start=0.0):
 
     for i, result in enumerate(results):
         data, events, duration = result
-        inst_data[i*20:(i+1)*20, :, :] = data
+        inst_data[i * 20:(i + 1) * 20, :, :] = data
         inst_events[i] = events
         inst_durations[i] = duration
     # print(type(results))
     # import sys; sys.exit()
-
 
     inst_events[1, :, 0] += inst_durations[0]
     inst_events[2, :, 0] += np.sum(inst_durations[0:2])
@@ -97,4 +68,3 @@ def extract_epochs(full_data, config, start=0.0):
     this_sub_data.filter(*filter_params, **filter_dict)
 
     return this_sub_data
-

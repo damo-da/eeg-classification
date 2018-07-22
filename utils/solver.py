@@ -1,6 +1,5 @@
 from moabb.datasets import Shin2017A, Shin2017B
 import multiprocessing as mp
-from utils import plot_scores
 
 
 def apply_algorithm(func, config):
@@ -29,4 +28,4 @@ def apply_algorithm(func, config):
     # print('single threaded: ', timeit.timeit(fun2, number=3))
     # print('multi process: ', timeit.timeit(fun1, number=3))
 
-    plot_scores(scores, config)
+    return scores

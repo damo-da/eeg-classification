@@ -1,7 +1,7 @@
-from utils import extract_epochs, classify
+from utils import extract_epochs, classify, plot_scores, apply_algorithm
 
 
-def by_window(subject, config, dataset):
+def by_window_func(subject, config, dataset):
     print("loading data for subject", subject)
 
     this_subject_data = dataset.get_data([subject])[subject]
@@ -19,3 +19,6 @@ def by_window(subject, config, dataset):
     return scores
 
 
+def by_window(config):
+    result = apply_algorithm(by_window_func, config)
+    plot_scores(result, config)

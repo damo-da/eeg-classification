@@ -2,17 +2,20 @@ from sklearn.svm import SVC
 import random
 import numpy as np
 
-CONFIG = {
+config = {
     'is_ma': True,
     'fps': 200,
 
     'concurrent': True,
-    'random_state': 100,
+    # 'concurrent': False,
 
-    'subjects': range(1, 5),
+    'random_state': 100,
+    # 'random_state': None,
+
+    'subjects': range(1, 3),
 
     # 'windows': range(-5, 20),
-    'windows': range(-4, 6),
+    'windows': range(-4, 2),
     'epoch_duration': 3.0,
 
     'filter': {
@@ -38,7 +41,7 @@ CONFIG = {
     }
 }
 
-random.seed(CONFIG['random_state'])
-np.random.seed(CONFIG['random_state'])
+random.seed(config['random_state'])
+np.random.seed(config['random_state'])
 
-CONFIG['classification']['classifier'] = SVC(kernel='linear')
+config['classification']['classifier'] = SVC(kernel='linear')

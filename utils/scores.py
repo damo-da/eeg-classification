@@ -13,3 +13,21 @@ def plot_scores(all_scores, config):
     plt.plot(windows, scores, linewidth=2)
 
     plt.show()
+
+
+def plot_cv_scores(all_scores, label, values, config):
+    assert (len(all_scores) > 0)
+
+    windows = config['windows']
+
+    all_scores = np.array(all_scores)
+
+    averaged_scores = np.mean(all_scores, axis=0)  # average between subjects
+
+    plt.title('Cross validating {}'.format(label))
+    for i, value in enumerate(values):
+        plt.plot(windows, averaged_scores[i, :], label='value {}'.format(value))
+
+    plt.legend()
+
+    plt.show()
