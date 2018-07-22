@@ -10,7 +10,6 @@ def plot_scores(all_scores, config):
     scores = np.array(all_scores)
 
     scores = np.average(scores, axis=0)
-    print(scores)
     plt.plot(windows, scores, linewidth=2)
 
     plt.show()

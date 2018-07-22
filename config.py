@@ -6,6 +6,7 @@ CONFIG = {
     'is_ma': True,
     'fps': 200,
 
+    'concurrent': True,
     'random_state': 100,
 
     'subjects': range(1, 5),

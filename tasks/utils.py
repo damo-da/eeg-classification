@@ -2,6 +2,7 @@ from moabb.datasets import Shin2017B, Shin2017A
 from utils import extract_epochs, classify
 from matplotlib import pyplot as plt
 
+
 def single_param_cross_validator(config, label, ranges, apply_func):
     subjects = config['subjects']
 
@@ -23,7 +24,7 @@ def single_param_cross_validator(config, label, ranges, apply_func):
             scores = []
             for window_start in windows:
                 print('start at ', window_start, end=', ')
-                data = extract_epochs(this_subject_data, subject, config=config, start=window_start)
+                data = extract_epochs(this_subject_data, config=config, start=window_start)
                 score = classify(data, config=config)
                 scores.append(score)
                 print(score)
