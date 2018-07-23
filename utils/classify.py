@@ -1,5 +1,5 @@
 from sklearn import linear_model
-from sklearn.model_selection import ShuffleSplit
+from sklearn.model_selection import RepeatedKFold
 from mne.decoding import CSP
 import numpy as np
 
@@ -12,7 +12,8 @@ def classify(epochs, config):
 
     labels = epochs.events[:, -1]
 
-    cv = ShuffleSplit(n_splits=n_splits, test_size=test_size)
+    # cv = ShuffleSplit(n_splits=n_splits, test_size=test_size)
+    cv = RepeatedKFold(n_splits=5, n_repeats=10)
     scores = []
     epochs_data = epochs.get_data()
 
