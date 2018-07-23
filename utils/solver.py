@@ -3,7 +3,7 @@ import multiprocessing as mp
 
 
 def apply_algorithm(func, config):
-    use_concurrent = config['concurrent']
+    use_concurrency = config['concurrency']
 
     subjects = config['subjects']
 
@@ -23,7 +23,7 @@ def apply_algorithm(func, config):
     def single_process():
         return [func(*x) for x in args]
 
-    scores = concurrent() if use_concurrent else single_process()
+    scores = concurrent() if use_concurrency else single_process()
 
     # print('single threaded: ', timeit.timeit(fun2, number=3))
     # print('multi process: ', timeit.timeit(fun1, number=3))

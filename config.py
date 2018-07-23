@@ -6,8 +6,8 @@ config = {
     'is_ma': True,
     'fps': 200,
 
-    'concurrent': True,
-    # 'concurrent': False,
+    # 'concurrency': True,
+    'concurrency': False,
 
     'random_state': 100,
     # 'random_state': None,
