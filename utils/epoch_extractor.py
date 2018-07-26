@@ -7,6 +7,8 @@ from .filter_utils import get_filter_params
 def session_mapper(session_data, start_offset, duration):
     raw = session_data['run_0']
 
+    raw.set_eeg_reference('average')
+
     times = raw._data[-1]
     cs = np.where(times > 0)[0]
 
@@ -26,19 +28,33 @@ def session_mapper(session_data, start_offset, duration):
     return this_data, this_events, this_duration
 
 
-def extract_epochs(full_data, config, start=0.0):
+def get_window(master: EpochsArray, config, start):
+    fps = config['fps']
+
+    start = start - config['epoch_start']
+    end = start + config['window_duration']
+
+    start = int(fps * start)
+    end = int(fps*end)
+
+    data = master._data[:, :, start:end]
+    window = EpochsArray(data, master.info, events=master.events, baseline=master.baseline)
+    return window
+
+
+def extract_epochs(full_data, config):
     """Extract epochs from full subjects data.
 
-    :param epoch_length: in seconds.
     """
 
     fps = config['fps']
-    duration_of_frames = int(config['epoch_duration'] * fps)
-    start_at_frame = int(start * fps)
+
+    start_at_frame = int(config['epoch_start'] * fps)
+    duration_of_frames = int((config['epoch_end'] - config['epoch_start'])*fps)
 
     assert (len(list(list(full_data.values())[0].keys())) == 1)
 
-    info = list(full_data.values())[0]['run_0'].info.copy()
+    info = list(full_data.values())[0]['run_0'].info
 
     inst_data = np.empty((60, 33, duration_of_frames))
     inst_events = np.empty((3, 20, 3), dtype=np.int)
@@ -60,9 +76,8 @@ def extract_epochs(full_data, config, start=0.0):
     inst_events = inst_events.reshape((60, 3))
 
     this_sub_data = EpochsArray(inst_data, info, events=inst_events, baseline=(None, None))
-    this_sub_data.pick_types(eeg=True)
 
-    this_sub_data.set_eeg_reference('average')
+    this_sub_data.pick_types(eeg=True)
 
     filter_params, filter_dict = get_filter_params(config)
     this_sub_data.filter(*filter_params, **filter_dict)

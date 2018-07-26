@@ -16,7 +16,10 @@ config = {
 
     # 'windows': range(-5, 20),
     'windows': range(-4, 2),
-    'epoch_duration': 3.0,
+    'window_duration': 3.0,
+
+    'epoch_start': -5,
+    'epoch_end': 20,
 
     'filter': {
         'ma': {

@@ -1,4 +1,4 @@
-from .epoch_extractor import extract_epochs
+from .epoch_extractor import (extract_epochs, get_window)
 from .classify import classify
 from .scores import plot_scores, plot_cv_scores
 from .solver import apply_algorithm
