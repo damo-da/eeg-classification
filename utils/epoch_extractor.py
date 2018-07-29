@@ -2,6 +2,7 @@ import numpy as np
 from mne import EpochsArray
 from itertools import starmap
 from .filter_utils import get_filter_params
+from constants import FRONTAL_CHANNEL, PARIENTAL_CHANNEL
 
 
 def session_mapper(session_data, start_offset, duration):
@@ -31,14 +32,10 @@ def session_mapper(session_data, start_offset, duration):
 def get_window(master: EpochsArray, config, start):
     fps = config['fps']
 
-    start = start - config['epoch_start']
-    end = start + config['window_duration']
+    end = start + config['window_duration'] - 1. / fps
 
-    start = int(fps * start)
-    end = int(fps*end)
+    window = master.copy().crop(start, end)
 
-    data = master._data[:, :, start:end]
-    window = EpochsArray(data, master.info, events=master.events, baseline=master.baseline)
     return window
 
 
@@ -50,7 +47,7 @@ def extract_epochs(full_data, config):
     fps = config['fps']
 
     start_at_frame = int(config['epoch_start'] * fps)
-    duration_of_frames = int((config['epoch_end'] - config['epoch_start'])*fps)
+    duration_of_frames = int((config['epoch_end'] - config['epoch_start']) * fps)
 
     assert (len(list(list(full_data.values())[0].keys())) == 1)
 
@@ -75,9 +72,11 @@ def extract_epochs(full_data, config):
     inst_events[2, :, 0] += np.sum(inst_durations[0:2])
     inst_events = inst_events.reshape((60, 3))
 
-    this_sub_data = EpochsArray(inst_data, info, events=inst_events, baseline=(None, None))
+    this_sub_data = EpochsArray(inst_data, info, tmin=config['epoch_start'], events=inst_events,
+                                baseline=config['baseline'])
 
-    this_sub_data.pick_types(eeg=True)
+    this_sub_data.pick_channels(FRONTAL_CHANNEL + PARIENTAL_CHANNEL)
+    # this_sub_data.pick_types(eeg=True)
 
     filter_params, filter_dict = get_filter_params(config)
     this_sub_data.filter(*filter_params, **filter_dict)

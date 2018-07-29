@@ -6,16 +6,15 @@ import mne
 @lru_cache(maxsize=None)
 def calculate_cheby2_params(Wp, Ws, Rp, Rs, fps):
     _ord, Wn = signal.cheb2ord(Wp, Ws, Rp, Rs)
-    b, a = signal.cheby2(_ord, Rs, Wn, btype='bandpass')
+    sos = signal.cheby2(_ord, Rs, Ws, btype='bandpass', output='sos')
 
     nyquist_f = fps / 2.
 
-    passband = (Wp[0] * nyquist_f, Wp[1] * nyquist_f)
-    stopband = (Ws[0] * nyquist_f, Ws[1] * nyquist_f)
+    passband = [Wp[0] * nyquist_f, Wp[1] * nyquist_f]
+    stopband = [Ws[0] * nyquist_f, Ws[1] * nyquist_f]
 
     iir_params = mne.filter.construct_iir_filter({
-        'b': b,
-        'a': a,
+        'sos': sos,
         'output': 'ba'}, passband, stopband, fps, btype='bandpass')
     return passband, {'method': 'iir', 'iir_params': iir_params}
 

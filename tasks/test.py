@@ -14,8 +14,8 @@ def by_window_func(subject, config, dataset):
     for window_start in windows:
         data = get_window(this_subject_data, config, window_start)
         score = classify(data, config=config)
-        print(score)
         scores.append(score)
+        print('subject: {}, window: {}, score: {}'.format(subject, window_start, score))
 
     return scores
 

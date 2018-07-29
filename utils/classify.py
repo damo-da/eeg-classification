@@ -6,14 +6,14 @@ import numpy as np
 
 def classify(epochs, config):
     n_splits = config['classification']['n_splits']
-    test_size = config['classification']['test_size']
+    n_repeats = config['classification']['n_repeats']
     classifier = config['classification']['classifier']
-    csp = CSP(norm_trace=config['classification']['csp_norm_trace'])
+    csp = CSP(n_components=config['classification']['csp_num_components'],
+              norm_trace=config['classification']['csp_norm_trace'])
 
     labels = epochs.events[:, -1]
 
-    # cv = ShuffleSplit(n_splits=n_splits, test_size=test_size)
-    cv = RepeatedKFold(n_splits=5, n_repeats=10)
+    cv = RepeatedKFold(n_splits=n_splits, n_repeats=n_repeats)
     scores = []
     epochs_data = epochs.get_data()
 

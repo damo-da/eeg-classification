@@ -19,12 +19,14 @@ config = {
     'window_duration': 3.0,
 
     'epoch_start': -5,
-    'epoch_end': 20,
+    'epoch_end': 25,
+
+    'baseline': (-3.0, 0-0.05),
 
     'filter': {
         'ma': {
             'Wp': (0.0400, 0.3500),  # passband
-            'Ws': (0.0100, 0.4000),  # stopband
+            'Ws': (0.0100, 0.3800),  # stopband
             'Rp': 3,
             'Rs': 30,
         },
@@ -36,9 +38,10 @@ config = {
         }
     },
     'classification': {
-        'n_splits': 10,
-        'test_size': 0.2,
+        'n_repeats': 10,
+        'n_splits': 5,
 
+        'csp_num_components': 4,  # length of feature vector = double of this value
         'csp_norm_trace': False,
 
     }

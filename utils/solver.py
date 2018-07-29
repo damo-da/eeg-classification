@@ -1,5 +1,6 @@
 from moabb.datasets import Shin2017A, Shin2017B
 import multiprocessing as mp
+from constants import MAXIMUM_NUMBER_OF_PROCESSES
 
 
 def apply_algorithm(func, config):
@@ -12,7 +13,10 @@ def apply_algorithm(func, config):
     args = list(map(lambda x: [x, config, dataset], subjects))
 
     def concurrent():
-        pool = mp.Pool(len(args))
+        num_ps = len(args)
+        num_ps = min(num_ps, MAXIMUM_NUMBER_OF_PROCESSES)
+
+        pool = mp.Pool(num_ps)
 
         all_scores = pool.starmap(func, args)
 
