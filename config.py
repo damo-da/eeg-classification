@@ -12,10 +12,11 @@ config = {
     'random_state': 100,
     # 'random_state': None,
 
-    'subjects': range(1, 3),
+    # 'subjects': range(1, 10),
+    'subjects': range(1, 2),
 
     # 'windows': range(-5, 20),
-    'windows': range(-4, 2),
+    'windows': range(-5, 10),
     'window_duration': 3.0,
 
     'epoch_start': -5,

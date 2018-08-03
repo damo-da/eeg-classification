@@ -8,9 +8,9 @@ mne_logger.setLevel(logging.ERROR)
 
 
 def main():
-    # by_window(config)
+    by_window(config)
     # cross_validate_wp(config)
-    test(config)
+    # test(config)
 
 
 if __name__ == '__main__':

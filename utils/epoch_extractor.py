@@ -10,6 +10,7 @@ def session_mapper(session_data, start_offset, duration):
 
     raw.set_eeg_reference('average')
 
+
     times = raw._data[-1]
     cs = np.where(times > 0)[0]
 
@@ -58,15 +59,13 @@ def extract_epochs(full_data, config):
     inst_durations = np.empty((3,), dtype=np.int)  # store the length of sessions
 
     args = list(map(lambda x: [x, start_at_frame, duration_of_frames], full_data.values()))
-    results = starmap(session_mapper, args)
+    results = list(starmap(session_mapper, args))
 
     for i, result in enumerate(results):
         data, events, duration = result
         inst_data[i * 20:(i + 1) * 20, :, :] = data
         inst_events[i] = events
         inst_durations[i] = duration
-    # print(type(results))
-    # import sys; sys.exit()
 
     inst_events[1, :, 0] += inst_durations[0]
     inst_events[2, :, 0] += np.sum(inst_durations[0:2])
@@ -76,7 +75,6 @@ def extract_epochs(full_data, config):
                                 baseline=config['baseline'])
 
     this_sub_data.pick_channels(FRONTAL_CHANNEL + PARIENTAL_CHANNEL)
-    # this_sub_data.pick_types(eeg=True)
 
     filter_params, filter_dict = get_filter_params(config)
     this_sub_data.filter(*filter_params, **filter_dict)

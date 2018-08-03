@@ -6,13 +6,16 @@ def single_param_cross_validator_func(subject, config, dataset, label, values, a
 
     all_scores = []
 
-    this_subject_data = dataset.get_data([subject])[subject]
-    this_subject_data = extract_epochs(this_subject_data, config)
+    full_data = dataset.get_data([subject])[subject]
 
     for this_value in values:
         print('using {} = {}'.format(label, this_value))
 
         apply_func(config, this_value)
+
+        print('extracting epoch for subject ', subject)
+        this_subject_data = extract_epochs(full_data, config)
+        print('extraction complete for ', subject)
 
         scores = []
         for window_start in windows:
